@@ -141,8 +141,8 @@ std::vector<std::string> graphSolver::FindCenter() {
  * > For each vertex in the graph, we recursively call the Bron-Kerbosch algorithm on the graph induced by the neighbors of
  * the vertex
  *
- * Args:
- *   R (set<std::string>): The current clique
+ * @Args:
+ *   R (set<std::string>): The current clique \
  *   P (set<std::string>): the set of possible vertices of maximal clique
  *   X (set<std::string>): The set of vertices that have been visited so far.
  *   max_clique (set<std::string>): the largest clique found so far
@@ -358,91 +358,124 @@ void graphSolver::FindEulerPath() {
  */
 
 //read docs
+/**
+ * FindMinimumSpanningTree - This function finds the minimum spanning tree of the graph by iterating through all the countries
+ * and finding the minimum spanning tree starting from each country. It then compares the length of each minimum spanning tree
+ * to find the shortest one.
+ *
+ * @param dist A map that stores the distances between each pair of countries.
+ * @param spanning_tree A reference to a spanning tree, which will store the edges of the minimum spanning tree.
+ * @param start_country A string representing the country to start the search for the minimum spanning tree.
+ *
+ * @return void
+ */
 void graphSolver::FindMinimumSpanningTree(std::map<std::pair<std::string, std::string>, size_t>& dist,
                                           spanningTree& spanning_tree, std::string start_country) {
-    size_t V = graph.size(); // number of vertices
+    // Get the number of vertices in the graph
+    size_t V = graph.size();
+    // Initialize the number of used edges to 0
     size_t used_edge = 0;
 
+    // Initialize variables to store the vertices of the edges with the minimum distance
     std::string x;
     std::string y;
 
+    // Create a set to store the vertices that have already been used
     std::set<std::string> used;
     used.insert(start_country);
 
+    // Iterate until the number of used edges is equal to V-1
     while (used_edge < V - 1) {
+        // Initialize the minimum distance to the maximum integer value
         size_t mn = INT_MAX;
+        // Clear the variables storing the vertices of the edges with the minimum distance
         x.clear();
         y.clear();
 
+        // Iterate through all the countries in the graph
         for (auto [i_country, i_to] : graph) {
-            if (used.count(i_country)) for (auto j_country : i_to) {
-                if (!used.count(j_country) && mn > dist[{i_country, j_country}]) {
-                    mn = dist[{i_country, j_country}];
-                    x = i_country;
-                    y = j_country;
+            // Check if the current country has already been used
+            if (used.count(i_country)) {
+                // Iterate through all the neighboring countries
+                for (auto j_country : i_to) {
+                    // Check if the neighboring country has not been used yet and the distance between them is smaller
+                    // than the current minimum distance
+                    if (!used.count(j_country) && mn > dist[{i_country, j_country}]) {
+                        // Update the minimum distance and the vertices of the edge
+                        mn = dist[{i_country, j_country}];
+                        x = i_country;
+                        y = j_country;
+                    }
                 }
             }
         }
 
+        // Add the edge with the minimum distance to the spanning tree
         spanning_tree.push_back({{x, y}, dist[{x, y}]});
 
+        // Add the new vertex to the set of used vertices
         used.insert(y);
+        // Increment the number of used edges
         used_edge++;
     }
 }
-
 /**
- * We iterate through all the countries in the graph, and for each country we find the minimum spanning tree starting from
- * that country. We then compare the length of the minimum spanning tree to the length of the current minimum spanning
- * tree, and if the new one is shorter, we replace the current minimum spanning tree with the new one
+ * Find the minimum spanning tree of the graph, starting from each country and choose the one with minimum length.
  *
  * Args:
- *   distances (map<std::string, std::vector<std::pair<std::string, int>>>): a map of all the distances between countries.
+ *   distances (map<std::string, std::vector<std::pair<std::string, int>>>): A map of all the distances between countries.
+ *     The keys are the names of the countries, and the values are vectors of pairs, where each pair consists of the name
+ *     of a neighboring country and the distance to that country.
  *
  * Returns:
- *   A spanning tree of the graph.
+ *   A spanning tree of the graph, represented as a vector of pairs. Each pair consists of a pair of connected countries
+ *   and the distance between them.
  */
 spanningTree graphSolver::FindMinimumSpanningTree(std::map<std::string, std::vector<std::pair<std::string, int>>> distances) {
+    // Convert the distances map to a map of pairs of countries and their distances
     std::map<std::pair<std::string, std::string>, size_t> dist;
-
     for (auto [from, to] : distances) {
         for (auto [country, cost] : to) {
             dist[{from, country}] = cost;
         }
     }
 
+    // Initialize variables for the minimum spanning tree and its length
     spanningTree minimum_spanning_tree;
     int minimum_length = INT_MAX;
 
-
-
-    for (auto [start_county, to] : graph)  {
+    // Iterate through all countries in the graph
+    for (auto [start_country, to] : graph)  {
+        // Find the minimum spanning tree starting from the current country
         spanningTree spanning_tree;
-        FindMinimumSpanningTree(dist, spanning_tree, start_county);
+        FindMinimumSpanningTree(dist, spanning_tree, start_country);
 
+        // Calculate the length of the minimum spanning tree
         size_t length = 0;
         for (auto [connected, cost] : spanning_tree) {
             length += cost;
         }
 
+        // Update the minimum spanning tree and its length if the current one is shorter
         if (length < minimum_length) {
             minimum_length = length;
             minimum_spanning_tree = spanning_tree;
         }
     }
 
+    // Return the minimum spanning tree
     return minimum_spanning_tree;
 }
 
 /**
  * The function finds the centroid of the graph
  *
- * Args:
- *   node (string): The current node.
- *   used (set<std::string>): a set of strings that contains the nodes that have already been visited.
- *   dist (distance_): The distance map that contains the distance between the nodes.
- *   weight (size_t): the weight of the current node
- *   prev (string): The previous node.
+ *
+ *   @param node (string): The current node.
+ *   @param used (set<std::string>): a set of strings that contains the nodes that have already been visited.
+ *   @param dist (distance_): The distance map that contains the distance between the nodes.
+ *   @param weight (size_t): the weight of the current node
+ *   @param prev (string): The previous node.
  */
 void graphSolver::FindCentroid(const std::string& node,
                                std::set<std::string>& used,
