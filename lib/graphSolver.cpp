@@ -138,17 +138,29 @@ std::vector<std::string> graphSolver::FindCenter() {
 }
 
 /**
- * > For each vertex in the graph, we recursively call the Bron-Kerbosch algorithm on the graph induced by the neighbors of
- * the vertex
- *
- * @Args:
- *   R (set<std::string>): The current clique \
- *   P (set<std::string>): the set of possible vertices of maximal clique
- *   X (set<std::string>): The set of vertices that have been visited so far.
- *   max_clique (set<std::string>): the largest clique found so far
- */
+
+This function implements the Bron-Kerbosch algorithm for finding the maximum clique in a graph.
+
+The algorithm starts with an empty set of vertices and a set of all vertices, and recursively adds
+
+vertices to the empty set while removing them from the set of all vertices until it finds a clique.
+
+For each vertex in the graph, the function recursively calls the Bron-Kerbosch algorithm on the graph
+
+induced by the neighbors of that vertex.
+
+@param R The current clique, represented as a set of vertex labels
+
+@param P The set of possible vertices of the maximal clique, represented as a set of vertex labels
+
+@param X The set of vertices that have been visited so far, represented as a set of vertex labels
+
+@param max_clique A reference to the set of nodes that form the maximum clique, represented as a set of vertex labels
+*/
 void graphSolver::Bronkerbosch(std::set<std::string> R, std::set<std::string> P, std::set<std::string> X,
                                std::set<std::string>& max_clique) {
+
+// If P and X are both empty, R is a maximal clique
     if (P.empty() && X.empty()) {
         if (R.size() > max_clique.size()) {
             max_clique = R;
@@ -157,6 +169,8 @@ void graphSolver::Bronkerbosch(std::set<std::string> R, std::set<std::string> P,
 
     auto PP = P;
 
+// For each vertex v in P, recursively call the Bron-Kerbosch algorithm on the graph induced by the
+// neighbors of v
     for (const auto& v : P) {
         Bronkerbosch(SetUnion(R, {v}),
                      SetIntersection(PP, VectorToSet(graph[v])),
@@ -169,13 +183,14 @@ void graphSolver::Bronkerbosch(std::set<std::string> R, std::set<std::string> P,
 }
 
 /**
- * > We start with an empty set of vertices, and a set of all vertices. We then recursively add vertices to the empty set,
- * and remove them from the set of all vertices, until we find a clique
- *
- * Returns:
- *   The set of nodes that form the maximum clique.
- */
+
+This function calls the Bron-Kerbosch algorithm to find the maximum clique in the graph.
+
+@return The set of nodes that form the maximum clique, represented as a set of vertex labels
+*/
 std::set<std::string> graphSolver::Bronkerbosch() {
+
+// Initialize the set of candidates to be all vertices in the graph
     std::set<std::string> candidates;
     for (auto [from, to] : graph) {
         candidates.insert(from);
@@ -183,8 +198,11 @@ std::set<std::string> graphSolver::Bronkerbosch() {
 
     std::set<std::string> max_clique;
 
+// Call the Bron-Kerbosch algorithm with an empty clique, the set of candidates, an empty set of visited vertices,
+// and a reference to the variable holding the maximum clique
     Bronkerbosch({}, candidates, {}, max_clique);
 
+// Return the maximum clique
     return max_clique;
 }
 
