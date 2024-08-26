@@ -21,3 +21,4 @@ Here is a software solution for some problems from Homework 5 in discrete mathem
 10.If the project does not run or you encounter errors, check for any missing dependencies and make sure they are installed.  
 
 I hope this step-by-step guide helps you build and run a C++ project using CMake.
+qwe
